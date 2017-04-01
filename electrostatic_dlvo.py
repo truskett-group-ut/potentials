@@ -1,8 +1,8 @@
-from numpy import exp
+from numpy import exp, maximum
 
 class Potential:
     #load in any default parameters needed
-    def __init__(self, _):
+    def __init__(self):
         self.num_params = 2
         self.param_names = set(['A', 'z'])
         return None
@@ -20,11 +20,6 @@ class Potential:
         A = float(params_val['A'])                   #electro amplitude
         z = float(params_val['z'])                   #screening length
         #calculate the dimensionless potential (over k_B*T)
-        r = max(0.00001, r)
+        r = maximum(0.00001, r)
         ur = A*exp(-r/z)/r
         return ur
-    
-    #holds some user defined defaults that may be desirable
-    def DefaultParameters(self):
-        return ({'A': True, 'z': True},
-                {'A': 1.0, 'z': 0.2})
