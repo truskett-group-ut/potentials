@@ -2,6 +2,12 @@ import sys
 import json
 from numpy import arange, maximum, minimum, array
 import re
+#wp:Program that takes input to generate intial potential files 'specs' and 'vals'
+#wp:Input: 1. Specify if uniform r points 'gen_spacing', or user defined r points 'filename.txt' in 'r[number]' format, or 'user_ascii' for r and ur values
+#	   2. spline name
+#	   3. positive constraint ('false' or 'true')
+#	   4. particle diameter (d)
+#	   (5). name of ascii file to read if option 1 == 'user_ascii' 
 
 def GenerateAkimaCumulative(r_min, r_max, dr, d, epsilon=1.0, alpha=8, max_ur=float(1e8)):
     r_max = r_max + 1.0*dr
@@ -26,10 +32,29 @@ if __name__ == "__main__":
         r_min = float(sys.argv[5])
         r_max =float(sys.argv[6])
         dr = float(sys.argv[7])
-    
+    if mode == 'user_ascii': 
+        try:     
+            ascii_file = sys.argv[5].strip()
+	except:
+            print "Must provide a filename to read potential data if using 'user_ascii' option. Program killed."
+            exit()
+
     #generate the data based on spcaing input or manual specification of not locations
     if mode == 'gen_spacing':
          r__ur = GenerateAkimaCumulative(r_min, r_max, dr, d)
+    elif mode == 'user_ascii':
+    #wp:user provided knots and positions. As long as it is a column separated file it can be anything.
+        f = open(ascii_file, 'r')
+        data = f.readlines()
+        r = []; ur=[];
+        for line in data:
+            cols=line.split() 
+            r.append(float(cols[0])) 
+            ur.append(float(cols[1])) 
+        f.close()
+        r = array(r)
+        ur = array(ur)
+        r__ur = zip(r,ur)
     elif mode:
         f = open(mode, 'r')
         data = f.readlines()
@@ -43,7 +68,7 @@ if __name__ == "__main__":
         r = array(r)
         r__ur = ManualAkimaCumulative(r, d)
     else:
-         raise Exception('Invalid input provided for the mode. Enter "gen_spacing" or a filename that is not "gen_spacing".')
+         raise Exception('Invalid input provided for the mode. Enter "gen_spacing", "user_ascii"(with file name) or a filename that is not "gen_spacing".')
 
     #format the data
     params_val = {}
