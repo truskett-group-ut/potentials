@@ -2,11 +2,11 @@ from scipy.interpolate import Akima1DInterpolator as Akima
 from numpy import cumsum, zeros, array, nan_to_num
 
 #class for defining an akima spline with regard to increments between points
-class AkimaCumulative:
+class AkimaDirect:
     #load in the initial 
-    def __init__(self, x, dy):
+    def __init__(self, x, y):
         self.x = x
-        self.y = cumsum(dy[::-1])[::-1]
+        self.y = y
         self.akima = Akima(self.x, self.y)
         return None
     
@@ -47,7 +47,7 @@ class Potential:
         for param_name in params_val:
             self.param_vals_array[self.map_dict[param_name]] = params_val[param_name]    
         #make the akima with linear extrapolation backwards to zero
-        akima = AkimaCumulative(self.param_names_array, self.param_vals_array)
+        akima = AkimaDirect(self.param_names_array, self.param_vals_array)
         ur = akima.__call__(r)
         ur = nan_to_num(ur)
         r0, r1 = self.param_names_array[0], self.param_names_array[1]
